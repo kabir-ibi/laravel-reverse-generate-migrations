@@ -1,0 +1,29 @@
+{
+  "name": "kabir-ibi/laravel-reverse-generate-migrations",
+  "description": "Custom Laravel package to reverse generate all migrations with collation and charset",
+  "type": "library",
+  "license": "MIT",
+  "authors": [
+      {
+          "name": "KH Mohaimenul Kabir",
+          "email": "skabir.diu@gmail.com"
+      }
+  ],
+  "autoload": {
+      "psr-4": {
+          "KabirIbi\\ReverseGenerateMigrations\\": "src/"
+      }
+  },
+  "minimum-stability": "dev",
+  "require": {
+      "php": "^7.2",
+      "illuminate/support": "^6.0"
+  },
+  "extra": {
+      "laravel": {
+          "providers": [
+              "KabirIbi\\ReverseGenerateMigrations\\ReverseGenerateMigrationsServiceProvider"
+          ]
+      }
+  }
+}
