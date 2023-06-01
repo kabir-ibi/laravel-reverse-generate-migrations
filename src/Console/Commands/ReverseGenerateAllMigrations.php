@@ -4,6 +4,7 @@ namespace KabirIbi\ReverseGenerateMigrations\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class ReverseGenerateAllMigrations extends Command
 {
@@ -17,18 +18,29 @@ class ReverseGenerateAllMigrations extends Command
 		$tables = DB::connection($connection)->getDoctrineSchemaManager()->listTableNames();
 
 		foreach ($tables as $table) {
-			$collation = DB::connection($connection)->getDoctrineSchemaManager()->listTableDetails($table)->getOptions()['collation'];
-			$charset = DB::connection($connection)->getDoctrineSchemaManager()->listTableDetails($table)->getOptions()['charset'];
+			$columns = Schema::getColumnListing($table);
+
+			$tableDetails = DB::connection($connection)->getDoctrineSchemaManager()->listTableDetails($table);
+			$collation = $tableDetails->getOption('collation') ?? '';
+			if($collation != "") $collation = "\$table->collation('$collation');";
+			$options = $tableDetails->getOptions();
+			$charset = $tableDetails->getOption('charset') ?? '';
+			if($charset != "") $charset = "\$table->charset('$charset');";
 
 			$migrationFileName = 'create_' . $table . '_table';
-
 			$migrationPath = database_path('migrations') . '/' . date('Y_m_d_His') . '_' . $migrationFileName . '.php';
 
-			$stub = file_get_contents(base_path('vendor/laravel/framework/src/Illuminate/Database/Migrations/stubs/create.stub'));
+			$stub = file_get_contents(base_path('vendor/kabir-ibi/laravel-reverse-generate-migrations/src/stubs/create_table.stub'));
+
+			$columnDefinitions = '';
+			foreach ($columns as $column) {
+				$columnDefinition = Schema::getColumnType($table, $column);
+				$columnDefinitions .= "\$table->$columnDefinition('$column');\n            ";
+			}
 
 			$stub = str_replace(
-				['DummyClass', 'DummyTable', 'DummyCollation', 'DummyCharset'],
-				[$migrationFileName, $table, $collation, $charset],
+				['{{ class }}', '{{ table }}', '{{ columns }}', '{{ charset }}', '{{ collation }}'],
+				[$migrationFileName, $table, $columnDefinitions, $charset, $collation],
 				$stub
 			);
 
