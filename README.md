@@ -2,6 +2,11 @@
 
 Laravel Reverse Generate Migrations is a custom Laravel package that allows you to reverse generate migration files for all tables in your database, including their respective collation and charset settings. This can be useful when you want to generate migration files based on an existing database schema.
 
+## Requirement
+
+PHP Minimum Version: 7.2
+Laravel Support: 6.x
+
 ## Installation
 
 To install the package, use Composer:
