@@ -21,11 +21,11 @@ class ReverseGenerateAllMigrations extends Command
 			$columns = Schema::getColumnListing($table);
 
 			$tableDetails = DB::connection($connection)->getDoctrineSchemaManager()->listTableDetails($table);
-			$collation = $tableDetails->getOption('collation') ?? '';
-			if($collation != "") $collation = "\$table->collation('$collation');";
 			$options = $tableDetails->getOptions();
-			$charset = $tableDetails->getOption('charset') ?? '';
-			if($charset != "") $charset = "\$table->charset('$charset');";
+			$collation = isset($options['collation']) ? $options['collation'] : '';
+			if($collation != '') $collation = "\$table->collation('$collation');";
+			$charset = isset($options['charset']) ? $options['charset'] : '';
+			if($charset != '') $charset = "\$table->charset('$charset');";
 
 			$migrationFileName = 'create_' . $table . '_table';
 			$migrationPath = database_path('migrations') . '/' . date('Y_m_d_His') . '_' . $migrationFileName . '.php';
@@ -35,7 +35,7 @@ class ReverseGenerateAllMigrations extends Command
 			$columnDefinitions = '';
 			foreach ($columns as $column) {
 				$columnDefinition = Schema::getColumnType($table, $column);
-				$columnDefinitions .= "\$table->$columnDefinition('$column');\n            ";
+				$columnDefinitions .= "\$table->$columnDefinition('$column');\n			";
 			}
 
 			$stub = str_replace(
